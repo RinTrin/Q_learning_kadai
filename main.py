@@ -9,17 +9,19 @@ import cv2
 # "agp" means all agent's place
 # 0,0 of agp is left_below
 
-def main(episodes, alpha=0.1, gannma=0.9, edge_len=25, prj_name=None):
+def main(episodes, alpha=0.1, gannma=0.9, epsilon=0.1, edge_len=25, prj_name=None):
     # assertion
     assert episodes >= 100, ('EPISODES ARE DEFINED AS TO BE MORE THAN 99 !!')
     assert prj_name is not None, ('SET PROJECT NAME !!')
     # initialize
     prey = Prey(edge_len)
-    hunter_1, hunter_2 = Hunter(alpha, gannma, edge_len, prey), Hunter(alpha, gannma, edge_len, prey)
+    hunter_1, hunter_2 = Hunter(alpha,gannma,epsilon,edge_len,prey), Hunter(alpha,gannma,epsilon,edge_len,prey)
     utils.set_another_agent(hunter_1, hunter_2, prey)
 
     steps_list = []
-    save_path = f'./plot_data/{prj_name}.png'
+    save_path = f'./plot_data/{prj_name}_E{episodes}_L{edge_len}.png'
+
+    logger = utils.make_logger(prj_name)
 
     # learning
     for episode in tqdm(range(episodes)):
@@ -32,9 +34,9 @@ def main(episodes, alpha=0.1, gannma=0.9, edge_len=25, prj_name=None):
             if hunter_1.position == hunter_2.position or hunter_1.position==prey.position or hunter_2.position==prey.position:
                 pass
             else:
-                print(f'HUNTER_1 STARTS AT {hunter_1.position}')
-                print(f'HUNTER_2 STARTS AT {hunter_2.position}')
-                print(f'PREY     STARTS AT {prey.position}')
+                # print(f'HUNTER_1 STARTS AT {hunter_1.position}')
+                # print(f'HUNTER_2 STARTS AT {hunter_2.position}')
+                # print(f'PREY     STARTS AT {prey.position}')
                 break
         
         # repetetion
@@ -59,7 +61,7 @@ def main(episodes, alpha=0.1, gannma=0.9, edge_len=25, prj_name=None):
 
             # print per param
             utils.counter(steps, param=10000)
-            utils.print_debug(hunter_1, hunter_2, prey, edge_len, is_debug=False, is_Q=True)
+            utils.print_debug(hunter_1, hunter_2, prey, edge_len, logger, is_debug=True, is_Q=False)
         
         # steps per episode
         steps_list.append(steps)
@@ -70,4 +72,4 @@ def main(episodes, alpha=0.1, gannma=0.9, edge_len=25, prj_name=None):
 
 
 if __name__=='__main__':
-    main(episodes=100, edge_len=10, prj_name='test')
+    main(episodes=1000, edge_len=10, prj_name='test_20')
