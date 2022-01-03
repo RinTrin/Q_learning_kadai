@@ -116,6 +116,7 @@ def update_position(position, move_way):
     new_position = [new_x, new_y]
     return new_position
 
+# debug
 if __name__=='__main__':
     a = catched([1,0],[0,2], prey_position=[0, 0])
     print(a)

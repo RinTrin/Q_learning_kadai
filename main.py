@@ -13,15 +13,15 @@ def main(episodes, alpha=0.1, gannma=0.9, epsilon=0.1, edge_len=25, prj_name=Non
     # assertion
     assert episodes >= 100, ('EPISODES ARE DEFINED AS TO BE MORE THAN 99 !!')
     assert prj_name is not None, ('SET PROJECT NAME !!')
+    # log
+    logger = utils.make_logger(prj_name)
     # initialize
     prey = Prey(edge_len)
-    hunter_1, hunter_2 = Hunter(alpha,gannma,epsilon,edge_len,prey), Hunter(alpha,gannma,epsilon,edge_len,prey)
+    hunter_1, hunter_2 = Hunter(alpha,gannma,epsilon,edge_len,prey,logger), Hunter(alpha,gannma,epsilon,edge_len,prey,logger)
     utils.set_another_agent(hunter_1, hunter_2, prey)
 
     steps_list = []
     save_path = f'./plot_data/{prj_name}_E{episodes}_L{edge_len}.png'
-
-    logger = utils.make_logger(prj_name)
 
     # learning
     for episode in tqdm(range(episodes)):

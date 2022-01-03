@@ -3,13 +3,14 @@ import utils
 import numpy as np
 
 class Hunter():
-    def __init__(self, alpha, gannma, epsilon, edge_len, prey):
+    def __init__(self, alpha, gannma, epsilon, edge_len, prey, logger):
         self.alpha = alpha
         self.gannma = gannma
         self.edge_len = edge_len
 
         self.another_hunter = None
         self.prey = prey
+        self.logger = logger
 
         self.way_list = ['up','down','left','right']
         self.way2num_dic = {way:i for i, way in enumerate(self.way_list)}
@@ -54,57 +55,13 @@ class Hunter():
         # print('AGP', agp_array)
         self.array_25 = self.make_array_25(agp_array, x, y, margin_dic)
     
-    def move_one_step(self, way):
-        x = self.position[0]
-        y = self.position[1]
-        if way=='up':x-=1
-        elif way=='down':x+=1
-        elif way=='left':y-=1
-        elif way=='right':y+=1
-        else:raise ValueError
-
-        return [x, y]
-
-    def update_Q(self):
-        another_hunter_index = self.make_index(is_another=True)
-        prey_index           = self.make_index(is_another=True)
-        
-        max_way = self.choose_max_way(another_hunter_index, prey_index)
-        max_way_num = self.way2num_dic[max_way]
-
-        # check so that another agent is not positioning to moving place
-        next_pos = self.move_one_step(max_way)
-        if self.check_another_agent(next_pos):
-            pass
-        else:
-            # update self.position
-            self.position = utils.update_position(self.position, max_way)
-        
-        self.check_25()
-
-        next_another_hunter_index = self.make_index(is_another=True)
-        next_prey_index           = self.make_index(is_another=False)
-        
-        max_Q = self.Q[max_way_num][next_another_hunter_index][next_prey_index]
-        now_Q = self.Q[max_way_num][another_hunter_index][prey_index]
-        if utils.catched(self.position, self.another_hunter.position, prey_position=self.prey.position):
-            self.Q[max_way_num][another_hunter_index][prey_index] = (1-self.alpha)*now_Q + self.alpha*(self.r_catched + self.gannma*max_Q)
-            self.check_25_last()
-            hunter_index = self.make_index(is_another=True)
-            prey_index   = self.make_index(is_another=False)
-            now_Q = self.Q[max_way_num][hunter_index][prey_index]
-            self.another_hunter.Q[max_way_num][hunter_index][prey_index] = (1-self.alpha)*now_Q + self.alpha*(self.r_catched + self.gannma*max_Q)
-            return True
-        else:
-            self.Q[max_way_num][another_hunter_index][prey_index] = (1-self.alpha)*now_Q + self.alpha*(self.r + self.gannma*max_Q)
-            return False
-    
     def check_another_agent(self, next_pos):
         if next_pos==self.prey.position or next_pos==self.another_hunter.position:
             return True
         else:
             return False
-     
+
+    
     def check_margin(self, x, y):
         margin_dic = {way:2 for way in self.way_list}
         left_mar = y
@@ -155,3 +112,53 @@ class Hunter():
         else:
             index = index[0]
         return index
+        
+    def move_one_step(self, way):
+        x = self.position[0]
+        y = self.position[1]
+        if way=='up':x-=1
+        elif way=='down':x+=1
+        elif way=='left':y-=1
+        elif way=='right':y+=1
+        else:raise ValueError
+
+        return [x, y]
+
+    def update_Q(self):
+        another_hunter_index = self.make_index(is_another=True)
+        prey_index           = self.make_index(is_another=False)
+        
+        max_way = self.choose_max_way(another_hunter_index, prey_index)
+        max_way_num = self.way2num_dic[max_way]
+
+        # check so that another agent is not positioning to moving place
+        next_pos = self.move_one_step(max_way)
+        if self.check_another_agent(next_pos):
+            pass
+        else:
+            # update self.position
+            self.position = utils.update_position(self.position, max_way)
+        
+        self.check_25()
+
+        next_another_hunter_index = self.make_index(is_another=True)
+        next_prey_index           = self.make_index(is_another=False)
+        
+        max_Q = self.Q[max_way_num][next_another_hunter_index][next_prey_index]
+        now_Q = self.Q[max_way_num][another_hunter_index][prey_index]
+        self.logger.info(f'max_Q : {max_Q}')
+        self.logger.info(f'now_Q : {now_Q}')
+        self.logger.info(f'max_way_num : {max_way_num}, {max_way}')
+        self.logger.info(f'another_hunter_index, prey_index : {another_hunter_index}, {prey_index}')
+        self.logger.info(f'next_another_hunter_index, next_prey_index : {next_another_hunter_index}, {next_prey_index}')
+        if utils.catched(self.position, self.another_hunter.position, prey_position=self.prey.position):
+            self.Q[max_way_num][another_hunter_index][prey_index] = (1-self.alpha)*now_Q + self.alpha*(self.r_catched + self.gannma*max_Q)
+            self.check_25_last()
+            hunter_index = self.make_index(is_another=True)
+            prey_index   = self.make_index(is_another=False)
+            now_Q = self.Q[max_way_num][hunter_index][prey_index]
+            self.another_hunter.Q[max_way_num][hunter_index][prey_index] = (1-self.alpha)*now_Q + self.alpha*(self.r_catched + self.gannma*max_Q)
+            return True
+        else:
+            self.Q[max_way_num][another_hunter_index][prey_index] = (1-self.alpha)*now_Q + self.alpha*(self.r + self.gannma*max_Q)
+            return False
