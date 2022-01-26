@@ -72,4 +72,4 @@ def main(episodes, alpha=0.1, gannma=0.9, epsilon=0.1, edge_len=25, prj_name=Non
 
 
 if __name__=='__main__':
-    main(episodes=1000, edge_len=10, prj_name='test_20')
+    main(episodes=4000, edge_len=10, prj_name='test_R200')
