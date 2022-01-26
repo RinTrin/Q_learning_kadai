@@ -16,3 +16,4 @@ Q_learning_kadai
 log : 位置情報などを書き出しているlogを保存するフォルダ
 plot_data : シミュレーション結果をplotしたものを保存するフォルダ
 main.pyで実行する
+
