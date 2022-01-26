@@ -20,7 +20,7 @@ class Hunter():
         self.Q = np.zeros((4, 26, 26))
         self.epsilon = epsilon
         self.r = -1
-        self.r_catched = 200
+        self.r_catched = 100
 
     def initialize_position(self):
         x = random.randint(0,self.edge_len-1)
